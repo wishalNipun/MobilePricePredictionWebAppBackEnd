@@ -36,4 +36,4 @@ async def submit_mobile_form(mobile_data: MobileForm):
     # Perform any necessary processing or validation here
     
     # Return a response (you can customize this based on your requirements)
-    return {"message": "Form data submitted successfully", "data": mobile_data.dict()}
+    return {"message": "Form data submitted successfully ?", "data": mobile_data.dict()}
