@@ -16,8 +16,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
 class MobileForm(BaseModel):
     brand: str
     color: str
@@ -47,7 +45,6 @@ def prediction(input_list):
         print("Loaded data:", model)
     pred_value = model.predict(input_value)
     
-   
     return pred_value
 
   
@@ -61,7 +58,8 @@ async def submit_mobile_form(mobile_data: MobileForm):
     memory = mobile_data.memory
     storage = mobile_data.storage
 
-    brand_list = ['ASUS','Apple','GIONEE','Google Pixel','HTC','IQOO','Infinix','LG','Lenovo','Motorola','Nokia','OPPO','POCO','SAMSUNG','Xiaomi','realme','vivo']
+    brand_list = ['ASUS','Apple','GIONEE','Google Pixel','HTC','IQOO','Infinix','LG',
+                  'Lenovo','Motorola','Nokia','OPPO','POCO','SAMSUNG','Xiaomi','realme','vivo']
     model_list = ['Galaxy','Hot','Other','Redmi','Zenfone','iPhone']
     color_list = ['Black','Blue','Gold','Other','Silver','White']
     
@@ -89,6 +87,7 @@ async def submit_mobile_form(mobile_data: MobileForm):
         print(predicted_value)
 
         return {"message": "Form data submitted successfully?", "predicted_value": predicted_value}
+    
     except Exception as e:
-       
+
         raise HTTPException(status_code=500, detail=str(e))
