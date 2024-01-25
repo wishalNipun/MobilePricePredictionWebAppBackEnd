@@ -8,6 +8,12 @@ app = FastAPI()
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Float, String, Integer, DateTime
+from datetime import datetime
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -16,12 +22,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+DATABASE_URL = "mysql+mysqlconnector://root:1234@localhost/machineLearningProjectDatabase"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 class MobileForm(BaseModel):
     brand: str
     color: str
     model: str
     memory: str
     storage: str
+
+class savePredictionTable(Base):
+    __tablename__ = "prediction_details"
+    id = Column(Integer, primary_key=True, index=True)
+    brand = Column(String(50), index=True)
+    color = Column(String(50), index=True)
+    model = Column(String(50), index=True)
+    memory = Column(String(50), index=True)
+    storage = Column(String(50), index=True)
+    predicted_value = Column(Float)
+    save_date = Column(DateTime, default=datetime.utcnow)
+
+Base.metadata.create_all(bind=engine)    
 
 def prediction(input_list):
     file_path = 'model/predictor.pickle'
@@ -84,10 +107,39 @@ async def submit_mobile_form(mobile_data: MobileForm):
     try:
         predvalue = prediction(featur_Mobile_list)
         predicted_value = predvalue[0]
-        print(predicted_value)
+        
+        lkrRupee = predicted_value * 3.85
+        
+        print(predicted_value, 'd' , lkrRupee)
 
-        return {"message": "Form data submitted successfully?", "predicted_value": predicted_value}
+        db_data = savePredictionTable(
+            brand=brand,
+            color=color,
+            model=model,
+            memory=memory,
+            storage=storage,
+            predicted_value= float(lkrRupee)
+        )
+        print("DB Data:", db_data)
+        db = SessionLocal()
+        db.add(db_data)
+        db.commit()
+        db.refresh(db_data)
+        db.close()
+        
+        return {"message": "Form data submitted successfully?", "predicted_value": round(lkrRupee,3)}
     
     except Exception as e:
 
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/allData")
+def get_all_table_data():
+    db = SessionLocal()
+    try:
+        data = db.query(savePredictionTable).all()
+        return {"data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
