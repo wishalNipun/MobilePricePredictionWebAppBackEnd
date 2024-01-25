@@ -1,18 +1,16 @@
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
 import pandas as pd
-
 import pickle
-
-app = FastAPI()
-
 from fastapi.middleware.cors import CORSMiddleware
-
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Float, String, Integer, DateTime
 from datetime import datetime
+from sqlalchemy import desc 
+
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -137,9 +135,10 @@ async def submit_mobile_form(mobile_data: MobileForm):
 def get_all_table_data():
     db = SessionLocal()
     try:
-        data = db.query(savePredictionTable).all()
+        data = db.query(savePredictionTable).order_by(desc(savePredictionTable.save_date)).all()
         return {"data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
+
