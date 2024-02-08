@@ -20,7 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DATABASE_URL = "mysql+mysqlconnector://root:1234@localhost/machineLearningProjectDatabase"
+DATABASE_URL = "mysql+mysqlconnector://root:wishal123@machinelearningdatabase.c3wk8ouk4g8g.us-east-1.rds.amazonaws.com/machineLearningProjectDatabase"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
